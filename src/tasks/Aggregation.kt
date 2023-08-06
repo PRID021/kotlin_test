@@ -1,6 +1,7 @@
 package tasks
 
 import contributors.User
+import okhttp3.internal.userAgent
 
 /*
 TODO: Write aggregation code.
@@ -14,5 +15,28 @@ TODO: Write aggregation code.
  The corresponding test can be found in test/tasks/AggregationKtTest.kt.
  You can use 'Navigate | Test' menu action (note the shortcut) to navigate to the test.
 */
-fun List<User>.aggregate(): List<User> =
-    this
+fun List<User>.aggregate(): List<User> {
+    val mutableListLogins = mutableListOf<String>()
+    for (user in this) {
+        if (!mutableListLogins.contains(user.login)) {
+            mutableListLogins.add(user.login)
+        }
+    }
+    val mutableListContributes = MutableList(mutableListLogins.size) { 0 }
+    for (user in this) {
+        val usrIndex = mutableListLogins.indexOf(user.login)
+        mutableListContributes[usrIndex] += (user.contributions);
+    }
+
+    val mutableList = MutableList(mutableListLogins.size) { index ->
+        User(
+            mutableListLogins[index],
+            mutableListContributes[index]
+        )
+    }
+    mutableList.sortByDescending {
+        it.contributions
+    }
+
+    return mutableList;
+}
